@@ -32,6 +32,7 @@ function init() {
             }
             if (answers.start === 'Update Employee Role') {
                 updateEmployeeRole();
+                //changeRole();
             }
             if (answers.start === 'View All Roles') {
                 viewRoles();
@@ -109,40 +110,68 @@ function addEmployee() {
 };
 
 function updateEmployeeRole() {
-    db.query('SELECT CONCAT(first_name," ", last_name) name FROM employee', (err, row) => {
+    db.query('SELECT CONCAT(first_name," ", last_name) name FROM employee', (err, res) => {
         return prompt([
             {
                 type: 'list',
                 name: 'updateWho',
                 message: 'Which employees role would you like to update?',
-                choices: row.map(x => x.name)
+                choices: res.map(x => x.name)
             }
         ])
             .then(answer => {
                 console.log(answer);
+                //changeRole(answer);
+                const updateEmployee = (answer.updateWho)
+                const firstName = updateEmployee.substring(0, updateEmployee.indexOf(' '))
+                console.log(updateEmployee)
+                db.query('SELECT * FROM role', (err, res) => {
+                    if (err) {
+                        throw(err);
+                    }
+                            return prompt([
+                                {
+                                    type: 'list',
+                                    name: 'role_id',
+                                    message: 'Which role do you want to assign the selected employee?',
+                                    choices: res.map(role => role.title)
+                                }
+                            ])
+                            .then(answer => {
+                    //            console.log(answer);
+                //                console.log(role);
+                                const newRole = res.find(role => role.title === answer.role_id)
+                      //          console.log(newRole);
+                                db.promise().query(`UPDATE employee SET role_id = ${newRole.id} WHERE first_name = '${firstName}'`)
+                                .then(
+                                console.log(updateEmployee + " has been updated to " + newRole.title))
+                                .catch(err => console.log(err))
+                                init();
+                            })
+                        })
             })
     })
 }
 
-// function changeTitle() {
+// function changeRole() {
 //     db.query('SELECT * FROM role', (err, row) => {
 //         return prompt([
 //             {
 //                 type: 'list',
 //                 name: 'newRole',
 //                 message: 'Which role do you want to assign the selected employee?',
-//                 choices: row.map(y => y.name)
+//                 choices: row.map(x => x.role_id)
 //             }
 //         ])
-//         .then(title => {
-//             console.log(title);
+//         .then(answer => {
+//             console.log(answer);
 //         })
 //     })
 // }
 
 function viewRoles() {
     db.query(`SELECT * FROM role`, (err, rows) => {
-        console.table(rows);
+        console.table('\n\r', rows);
     });
     init();
 };
@@ -177,7 +206,7 @@ function addRole() {
 
 function viewDepts() {
     db.query(`SELECT * FROM department`, (err, rows) => {
-        console.table(rows)
+        console.table('\n\r', rows)
     });
     init();
 };
